@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:stable-slim
 
 ARG rehlds_version=3.7.0.695
 ARG metamod_version=1.3.0.128
@@ -10,13 +10,16 @@ ARG amxmod_url="https://www.amxmodx.org/amxxdrop/1.9/amxmodx-1.9.0-git5263-base-
 ARG revoice_url="https://teamcity.rehlds.org/guestAuth/downloadArtifacts.html?buildTypeId=Revoice_Publish&buildId=lastSuccessful"
 ARG jk_botti_url="http://koti.kapsi.fi/jukivili/web/jk_botti/jk_botti-$jk_botti_version-release.tar.xz"
 
+# Enable i386 architecture for 32-bit libraries
+RUN dpkg --add-architecture i386
+
 # Fix warning:
 # WARNING: setlocale('en_US.UTF-8') failed, using locale: 'C'.
 # International characters may not work.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     locales \
- && rm -rf /var/lib/apt/lists/* \
- && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
+ && rm -rf /var/lib/apt/lists/*
 ENV LANG=en_US.utf8
 ENV LC_ALL=en_US.UTF-8
 
@@ -28,12 +31,13 @@ ENV CPU_MHZ=2300
 RUN groupadd -r steam && useradd -r -g steam -m -d /opt/steam steam
 
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
-    ca-certificates=20190110 \
-    curl=7.64.0-4+deb10u1 \
-    lib32gcc1=1:8.3.0-6 \
-    unzip=6.0-23+deb10u1 \
-    xz-utils=5.2.4-1 \
-    zip=3.0-11+b1 \
+    ca-certificates \
+    curl \
+    gcc-multilib \
+    g++-multilib \
+    unzip \
+    xz-utils \
+    zip \
  && apt-get -y autoremove \
  && rm -rf /var/lib/apt/lists/*
 
